@@ -1,35 +1,30 @@
 const Requests = require('../models/requests')
 
 exports.addExpense =  async (req, res) =>{
-    const {senderMail,receiverMail}=req.body;
+    const {senderMail,receiverMail,cost}=req.body;
     try{
-        for (let index = 0; index < receiverMail.length; index++) {
-            const mailId = receiverMail[index][0];
-            const cost = receiverMail[index][1];
-            const request = await Requests.findOne({ senderEmail: senderMail,receiverEmail: mailId });
-            if (request){
-                await Requests.updateOne({
-                    senderEmail: senderMail,
-                    receiverEmail: mailId,
-                }, {
-                    $set: {
-                        value: request.value+cost
-                    }
-                })
-            }
-            else{
-                const newRequest = await Requests.findOne({ senderEmail: mailId,receiverEmail: senderMail });
-                await Requests.updateOne({
-                    senderEmail: mailId,
-                    receiverEmail: senderMail,
-                }, {
-                    $set: {
-                        value: newRequest.value-cost
-                    }
-                })
-            }
-            
+        const request = await Requests.findOne({ senderEmail: senderMail,receiverEmail: mailId });
+        if (request){
+            await Requests.updateOne({
+                senderEmail: senderMail,
+                receiverEmail: receiverMail,
+            }, {
+                $set: {
+                    value: request.value+cost
+                }
+            })
         }
+        else{
+            const newRequest = await Requests.findOne({ senderEmail: receiverMail,receiverEmail: senderMail });
+            await Requests.updateOne({
+                senderEmail: receiverMail,
+                receiverEmail: senderMail,
+            }, {
+                $set: {
+                    value: newRequest.value-cost
+                }
+            })
+        }  
         return res.status(200).json({"message":"Added Expense"})
     }
     catch(error){
