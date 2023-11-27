@@ -180,4 +180,23 @@ exports.login = async (req, res) => {
 
 };
 
+exports.GetallUser = async (req, res) => {
 
+    try {
+        const user = await User.find({});
+
+        if (user) {
+
+            return res.status(201).json({
+                msg: "user fetched Successfully",
+                user: user
+            });
+        } else {
+            return res.status(400).send("Unable to Fetch user");
+        }
+
+    } catch (error) {
+        console.log("error found")
+    }
+
+}

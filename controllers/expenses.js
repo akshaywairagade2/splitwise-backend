@@ -1,48 +1,63 @@
 const Requests = require('../models/requests')
 
-exports.addExpense =  async (req, res) =>{
-    const {senderMail,receiverMail,cost}=req.body;
-    try{
-        const request = await Requests.findOne({ senderEmail: senderMail,receiverEmail: mailId });
-        if (request){
+exports.addExpense = async (req, res) => {
+    const { id, cost, issender } = req.body;
+    try {
+        const request = await Requests.findOne({ _id: id });
+        if (request) {
             await Requests.updateOne({
-                senderEmail: senderMail,
-                receiverEmail: receiverMail,
+                _id: id
             }, {
                 $set: {
-                    value: request.value+cost
+                    value: issender ? request.value + cost : request.value - cost
                 }
             })
+            return res.status(200).json({ "message": "Added Expense Successfuly" })
         }
-        else{
-            const newRequest = await Requests.findOne({ senderEmail: receiverMail,receiverEmail: senderMail });
-            await Requests.updateOne({
-                senderEmail: receiverMail,
-                receiverEmail: senderMail,
-            }, {
-                $set: {
-                    value: newRequest.value-cost
-                }
-            })
-        }  
-        return res.status(200).json({"message":"Added Expense"})
+        else {
+            return res.status(400).json({ "message": "Unable to add" })
+        }
     }
-    catch(error){
-        return res.status(400).json({"error":error})
+    catch (error) {
+        return res.status(400).json({ "error": error })
     }
 }
 
-exports.getExpenses = async(req,res)=>{
-    const {Email} = req.body;
+exports.getExpenses = async (req, res) => {
+    const { Email } = req.body;
 
     try {
         const expenses = await Requests.find({
-            $or: [{ senderEmail: Email }, { receiverEmail: Email }],
+            $or: [{ senderEmail: Email, flag: true }, { receiverEmail: Email, flag: true }],
         });
 
-        res.status(200).json({ "message":"Successfully", "expenses": expenses });
+        res.status(200).json({ "message": "Successfully", "expenses": expenses });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+
+exports.settleUp = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        const request = await Requests.findOne({ _id: id });
+        if (request) {
+            await Requests.updateOne({
+                _id: id
+            }, {
+                $set: {
+                    value: 0
+                }
+            })
+            return res.status(200).json({ "message": "SettleUp Successfully" })
+        }
+        else {
+            return res.status(400).json({ "message": "Unable to SettleUp" })
+        }
+    }
+    catch (error) {
+        return res.status(400).json({ "error": error })
     }
 }

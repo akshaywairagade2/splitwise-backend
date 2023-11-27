@@ -12,10 +12,10 @@ const requestsSchema = new Schema({
     },
     flag: {
         type: Boolean,
-        default: false, 
+        default: false,
     },
-    value:{
-        type: Integer,
+    value: {
+        type: Number,
         default: 0,
     }
 });

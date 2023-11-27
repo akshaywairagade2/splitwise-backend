@@ -1,0 +1,6 @@
+To install the libraries
+    - npm i
+
+To run the program 
+    - nodemon index.js
+    
